@@ -44,6 +44,7 @@
         .nav-center { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
         .nav-center a { text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.3s ease; }
         .nav-center a:hover { color: var(--text-gray); }
+        .nav-center a.active { color: var(--secondary-color); font-weight: 700; }
         .nav-right { display: flex; align-items: center; }
         .btn { padding: 1rem 2.5rem; font-size: 1.125rem; font-weight: 600; text-decoration: none; border-radius: 12px; transition: all 0.3s ease; border: none; cursor: pointer; position: relative; display: inline-block; }
         .btn-secondary { background: var(--secondary-color); color: var(--primary-color); }
@@ -91,6 +92,7 @@
         .footer-links li { margin-bottom: 0.75rem; }
         .footer-links a { color: var(--white); text-decoration: none; opacity: 0.7; transition: opacity 0.3s ease; }
         .footer-links a:hover { opacity: 1; }
+        .footer-links a.active { opacity: 1; color: var(--secondary-color); font-weight: 600; }
         .footer-column { opacity: 0; transform: translateY(30px); }
         .footer-column.animate { animation: slideInUp 0.8s ease-out forwards; }
         .footer-column:nth-child(1).animate { animation-delay: 0.1s; }
@@ -174,23 +176,33 @@
             animatedElements.forEach(el => {
                 observer.observe(el);
             });
+
+            // Set active navigation link
+            const currentPage = window.location.pathname.split('/').pop() || 'home.html';
+            document.querySelectorAll('.nav-center a').forEach(link => {
+                const href = link.getAttribute('href').split('/').pop().split('#')[0];
+                if (href === currentPage || (currentPage === '' && href === 'home.html')) {
+                    link.classList.add('active');
+                }
+            });
         });
     </script>
 </head>
 <body>
     <header>
         <nav class="navbar">
-            <a href="./test.html" class="logo-container">
+            <a href="./home.html" class="logo-container">
                 <div class="logo-placeholder" style="background-image: url('./images/lawgeeksLogo.png');"></div>
                 <span class="logo-text">LawGeeks</span>
             </a>
             <ul class="nav-center">
                 <li><a href="./features.html">Features</a></li>
-                <li><a href="./test.html#resources">Resources</a></li>
+                <li><a href="./home.html#resources">Resources</a></li>
                 <li><a href="./about.html">About</a></li>
+                <li><a href="./contact.html">Contact</a></li>
             </ul>
             <div class="nav-right">
-                <a href="./test.html" class="btn btn-secondary btn-nav"><span>Home</span></a>
+                <a href="./home.html" class="btn btn-secondary btn-nav"><span>Home</span></a>
             </div>
         </nav>
     </header>
@@ -258,7 +270,7 @@
                 <h4>Company</h4>
                 <ul class="footer-links">
                     <li><a href="./about.html">About</a></li>
-                    <li><a href="#">Contact</a></li>
+                    <li><a href="./contact.html">Contact</a></li>
                 </ul>
             </div>
             <div class="footer-column">

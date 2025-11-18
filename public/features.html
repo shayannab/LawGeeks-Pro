@@ -54,6 +54,7 @@
         .nav-center { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
         .nav-center a { text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.3s ease; }
         .nav-center a:hover { color: var(--text-gray); }
+        .nav-center a.active { color: var(--secondary-color); font-weight: 700; }
         .nav-right { display: flex; align-items: center; }
         .mobile-menu-toggle { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; }
 
@@ -114,6 +115,7 @@
         .footer-links li { margin-bottom: 0.75rem; }
         .footer-links a { color: var(--white); text-decoration: none; opacity: 0.7; transition: opacity 0.3s ease; }
         .footer-links a:hover { opacity: 1; }
+        .footer-links a.active { opacity: 1; color: var(--secondary-color); font-weight: 600; }
         .footer-bottom { max-width: var(--container-width); margin: 0 auto; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; opacity: 0.7; position: relative; z-index: 1; }
         .footer-bottom-links { display: flex; gap: 2rem; list-style: none; }
         .footer-bottom-links a { color: var(--white); text-decoration: none; opacity: 0.7; transition: opacity 0.3s ease; }
@@ -154,25 +156,31 @@
 
         /* Apply animations to components */
         header { animation: slideInDown 0.6s ease-out; }
-        .hero-inner { animation: slideInUp 0.8s ease-out 0.2s both; }
-        .hero h1 { animation: slideInLeft 0.8s ease-out 0.3s both; }
-        .hero p { animation: slideInRight 0.8s ease-out 0.4s both; }
-        .hero .btn { animation: slideInUp 0.8s ease-out 0.5s both; }
+        
+        .hero-inner { animation: slideInUp 0.8s ease-out; }
+        .hero-inner.animate { animation: slideInUp 0.8s ease-out forwards; }
+        .hero h1 { animation: slideInLeft 0.8s ease-out 0.1s both; }
+        .hero p { animation: slideInRight 0.8s ease-out 0.2s both; }
+        .hero .btn { animation: slideInUp 0.8s ease-out 0.3s both; }
         
         .feature-card {
-            animation: slideInUp 0.6s ease-out both;
+            opacity: 0;
+            transform: translateY(30px);
         }
-        .feature-card:nth-child(1) { animation-delay: 0.1s; }
-        .feature-card:nth-child(2) { animation-delay: 0.2s; }
-        .feature-card:nth-child(3) { animation-delay: 0.3s; }
-        .feature-card:nth-child(4) { animation-delay: 0.4s; }
-        .feature-card:nth-child(5) { animation-delay: 0.5s; }
-        .feature-card:nth-child(6) { animation-delay: 0.6s; }
-        .feature-card:nth-child(7) { animation-delay: 0.7s; }
-        .feature-card:nth-child(8) { animation-delay: 0.8s; }
-        .feature-card:nth-child(9) { animation-delay: 0.9s; }
-        .feature-card:nth-child(10) { animation-delay: 1s; }
-        .feature-card:nth-child(11) { animation-delay: 1.1s; }
+        .feature-card.animate {
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+        .feature-card:nth-child(1).animate { animation-delay: 0.1s; }
+        .feature-card:nth-child(2).animate { animation-delay: 0.2s; }
+        .feature-card:nth-child(3).animate { animation-delay: 0.3s; }
+        .feature-card:nth-child(4).animate { animation-delay: 0.4s; }
+        .feature-card:nth-child(5).animate { animation-delay: 0.5s; }
+        .feature-card:nth-child(6).animate { animation-delay: 0.6s; }
+        .feature-card:nth-child(7).animate { animation-delay: 0.7s; }
+        .feature-card:nth-child(8).animate { animation-delay: 0.8s; }
+        .feature-card:nth-child(9).animate { animation-delay: 0.9s; }
+        .feature-card:nth-child(10).animate { animation-delay: 1s; }
+        .feature-card:nth-child(11).animate { animation-delay: 1.1s; }
         .feature-card:nth-child(12) { animation-delay: 1.2s; }
 
         .cta-inner { animation: slideInUp 0.8s ease-out 0.4s both; }
@@ -180,11 +188,12 @@
         .cta-inner p { animation: slideInRight 0.8s ease-out 0.6s both; }
         .cta-inner .btn { animation: slideInUp 0.8s ease-out 0.7s both; }
 
-        .footer-column { animation: slideInUp 0.8s ease-out both; }
-        .footer-column:nth-child(1) { animation-delay: 0.3s; }
-        .footer-column:nth-child(2) { animation-delay: 0.4s; }
-        .footer-column:nth-child(3) { animation-delay: 0.5s; }
-        .footer-column:nth-child(4) { animation-delay: 0.6s; }
+        .footer-column { opacity: 0; transform: translateY(30px); }
+        .footer-column.animate { animation: slideInUp 0.8s ease-out forwards; }
+        .footer-column:nth-child(1).animate { animation-delay: 0.1s; }
+        .footer-column:nth-child(2).animate { animation-delay: 0.2s; }
+        .footer-column:nth-child(3).animate { animation-delay: 0.3s; }
+        .footer-column:nth-child(4).animate { animation-delay: 0.4s; }
 
         @keyframes slideInDown {
             from {
@@ -210,15 +219,16 @@
     <!-- NAVBAR -->
     <header>
         <nav class="navbar">
-            <a href="./test.html" class="logo-container">
+            <a href="./home.html" class="logo-container">
                 <div class="logo-placeholder" style="background-image: url('./images/lawgeeksLogo.png');"></div>
                 <span class="logo-text">LawGeeks</span>
             </a>
             <button class="mobile-menu-toggle">☰</button>
             <ul class="nav-center">
                 <li><a href="./features.html">Features</a></li>
-                <li><a href="./test.html#resources">Resources</a></li>
+                <li><a href="./home.html#resources">Resources</a></li>
                 <li><a href="./about.html">About</a></li>
+                <li><a href="./contact.html">Contact</a></li>
             </ul>
             <div class="nav-right">
                 <a href="./dashboard.html" class="btn btn-secondary btn-nav"><span>Dashboard</span></a>
@@ -231,7 +241,7 @@
         <div class="hero-inner">
             <h1>Powerful Features for Complete Legal Clarity</h1>
             <p>Every tool you need to understand, analyze, and act on legal documents with confidence—powered by advanced AI.</p>
-            <a href="./test.html" class="btn btn-secondary btn-nav"><span>Back to Home</span></a>
+            <a href="./home.html" class="btn btn-secondary btn-nav"><span>Back to Home</span></a>
         </div>
     </section>
 
@@ -341,8 +351,8 @@
             <div class="footer-column">
                 <h4>Company</h4>
                 <ul class="footer-links">
-                    <li><a href="./test.html#about">About</a></li>
-                    <li><a href="#">Contact</a></li>
+                    <li><a href="./about.html">About</a></li>
+                    <li><a href="./contact.html">Contact</a></li>
                 </ul>
             </div>
             <div class="footer-column">
@@ -358,5 +368,39 @@
             <p>© 2025 LawGeeks. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+        // Intersection Observer for scroll-triggered animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all elements that should animate on scroll
+        document.addEventListener('DOMContentLoaded', () => {
+            const animatedElements = document.querySelectorAll('.hero-inner, .feature-card, .footer-column');
+            animatedElements.forEach(el => {
+                observer.observe(el);
+            });
+
+            // Set active navigation link
+            const currentPage = window.location.pathname.split('/').pop() || 'home.html';
+            document.querySelectorAll('.nav-center a').forEach(link => {
+                const href = link.getAttribute('href').split('/').pop().split('#')[0];
+                if (href === currentPage || (currentPage === '' && href === 'home.html')) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

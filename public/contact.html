@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - LawGeeks</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #E8FF8B;
+            --page-bg: #efebe7;
+            --white: #FFFFFF;
+            --text-dark: #1a1a1a;
+            --text-gray: #666666;
+            --space-3xl: 6rem;
+            --container-width: 1280px;
+            --container-padding: 2rem;
+            --card-radius: 20px;
+            --nav-radius: 28px;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text-dark); background: var(--page-bg); line-height: 1.6; }
+        h1 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 700; line-height: 1.1; margin-bottom: 1.5rem; }
+        h2 { font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 600; margin-bottom: 1rem; }
+        p { font-size: 1.125rem; line-height: 1.7; color: var(--text-gray); }
+        .container { max-width: var(--container-width); margin: 0 auto; padding: 0 var(--container-padding); }
+        
+        /* Navbar */
+        header { position: sticky; top: 1.5rem; z-index: 1000; padding: 0 var(--container-padding); margin-bottom: 3rem; }
+        .navbar { max-width: var(--container-width); margin: 0 auto; padding: 0.5rem 2rem; display: flex; justify-content: space-between; align-items: center; background: var(--white); border-radius: var(--nav-radius); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06); }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-placeholder { width: 56px; height: 56px; background-size: contain; background-repeat: no-repeat; background-position: center; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: 700; font-size: 1.25rem; }
+        .logo-text { font-size: 1.375rem; font-weight: 700; color: var(--primary-color); letter-spacing: -0.5px; }
+        .nav-center { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
+        .nav-center a { text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.3s ease; }
+        .nav-center a:hover { color: var(--text-gray); }
+        .nav-center a.active { color: var(--secondary-color); font-weight: 700; }
+        .nav-right { display: flex; align-items: center; }
+        .mobile-menu-toggle { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+        
+        /* Buttons */
+        .btn { display: inline-block; padding: 1rem 2.5rem; font-size: 1.125rem; font-weight: 600; text-decoration: none; border-radius: 12px; transition: all 0.3s ease; border: none; cursor: pointer; position: relative; }
+        .btn-primary { background: var(--primary-color); color: var(--white); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15); }
+        .btn-secondary { background: var(--secondary-color); color: var(--primary-color); }
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(232, 255, 139, 0.4); }
+        .btn-nav::after { content: '\f061'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) translateX(-20px); opacity: 0; transition: all 0.3s ease; font-size: 1.25rem; }
+        .btn-nav:hover::after { opacity: 1; transform: translate(-50%, -50%) translateX(0); }
+        .btn-nav { overflow: hidden; }
+        .btn-nav span { display: inline-block; transition: opacity 0.3s ease; }
+        .btn-nav:hover span { opacity: 0; }
+        
+        /* Hero */
+        .hero { padding: 0 var(--container-padding) var(--space-3xl); }
+        .hero-inner { max-width: var(--container-width); margin: 0 auto; background: var(--white); border-radius: var(--card-radius); padding: var(--space-3xl); text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08); transition: all 0.3s ease; }
+        .hero-inner:hover { transform: translateY(-5px); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12); }
+        .hero h1 { color: var(--text-dark); max-width: 900px; margin: 0 auto 1.5rem; }
+        .hero p { max-width: 700px; margin: 0 auto 2rem; font-size: 1.25rem; }
+        
+        /* Contact Grid */
+        .contact-section { padding: 3rem 0; }
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem; }
+        .contact-form { background: var(--white); padding: 3rem; border-radius: var(--card-radius); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08); }
+        .contact-info { background: var(--white); padding: 3rem; border-radius: var(--card-radius); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08); }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark); }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 1rem; border: 2px solid rgba(0, 0, 0, 0.08); border-radius: 12px; font-size: 1rem; transition: border 0.3s; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--secondary-color); }
+        .form-group textarea { resize: vertical; min-height: 150px; }
+        .submit-btn { width: 100%; padding: 1rem; background: var(--primary-color); color: var(--secondary-color); border: none; border-radius: 12px; font-size: 1.125rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15); }
+        .contact-item { margin-bottom: 2rem; }
+        .contact-item h3 { color: var(--text-dark); margin-bottom: 0.5rem; }
+        
+        /* Animations */
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hero-inner { animation: slideInUp 0.8s ease-out; }
+        .hero h1 { animation: slideInUp 0.8s ease-out 0.1s both; }
+        .hero p { animation: slideInUp 0.8s ease-out 0.2s both; }
+        .hero .btn { animation: slideInUp 0.8s ease-out 0.3s both; }
+        
+        .contact-form { opacity: 0; transform: translateY(30px); }
+        .contact-form.animate { animation: slideInUp 0.8s ease-out forwards; }
+        .contact-info { opacity: 0; transform: translateY(30px); }
+        .contact-info.animate { animation: slideInUp 0.8s ease-out 0.2s forwards; }
+        
+        /* Footer */
+        footer { background: var(--primary-color); color: var(--white); padding: var(--space-3xl) var(--container-padding); position: relative; overflow: hidden; }
+        footer::before { content: 'LAWGEEKS'; position: absolute; left: 5%; bottom: 5%; font-size: clamp(8rem, 20vw, 20rem); font-weight: 800; color: rgba(255, 255, 255, 0.03); letter-spacing: -0.05em; pointer-events: none; }
+        .footer-content { max-width: var(--container-width); margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: var(--space-3xl); margin-bottom: 2rem; position: relative; z-index: 1; }
+        .footer-logo { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
+        .footer-description { opacity: 0.8; line-height: 1.7; margin-bottom: 1.5rem; }
+        .footer-column h4 { margin-bottom: 1rem; font-weight: 600; }
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 0.75rem; }
+        .footer-links a { color: var(--white); text-decoration: none; opacity: 0.7; transition: opacity 0.3s ease; }
+        .footer-links a:hover { opacity: 1; }
+        .footer-links a.active { opacity: 1; color: var(--secondary-color); font-weight: 600; }
+        .footer-bottom { max-width: var(--container-width); margin: 0 auto; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; opacity: 0.7; position: relative; z-index: 1; }
+        
+        .footer-column { opacity: 0; transform: translateY(30px); }
+        .footer-column.animate { animation: slideInUp 0.8s ease-out forwards; }
+        .footer-column:nth-child(1).animate { animation-delay: 0.1s; }
+        .footer-column:nth-child(2).animate { animation-delay: 0.2s; }
+        .footer-column:nth-child(3).animate { animation-delay: 0.3s; }
+        .footer-column:nth-child(4).animate { animation-delay: 0.4s; }
+        
+        @media (max-width: 768px) {
+            .contact-grid { grid-template-columns: 1fr; }
+            .footer-content { grid-template-columns: 1fr; }
+            .nav-center { display: none; }
+            .mobile-menu-toggle { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <header>
+        <nav class="navbar">
+            <a href="./home.html" class="logo-container">
+                <div class="logo-placeholder" style="background-image: url('./images/lawgeeksLogo.png');"></div>
+                <span class="logo-text">LawGeeks</span>
+            </a>
+            <button class="mobile-menu-toggle">☰</button>
+            <ul class="nav-center">
+                <li><a href="./features.html">Features</a></li>
+                <li><a href="./home.html#resources">Resources</a></li>
+                <li><a href="./about.html">About</a></li>
+                <li><a href="./contact.html">Contact</a></li>
+            </ul>
+            <div class="nav-right">
+                <a href="./dashboard.html" class="btn btn-secondary btn-nav"><span>Dashboard</span></a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-inner">
+            <h1>Get in Touch</h1>
+            <p>Have questions? We're here to help. Reach out to our team and we'll respond within 24 hours.</p>
+        </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="contact-grid">
+                <div class="contact-form">
+                    <h2>Send Us a Message</h2>
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label>Your Name</label>
+                            <input type="text" name="name" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" name="email" placeholder="john@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <select name="subject" required>
+                                <option value="">Select a subject</option>
+                                <option value="general">General Inquiry</option>
+                                <option value="support">Technical Support</option>
+                                <option value="billing">Billing Question</option>
+                                <option value="partnership">Partnership Opportunity</option>
+                                <option value="feedback">Feedback</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea name="message" placeholder="Tell us how we can help..." required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Send Message</button>
+                    </form>
+                </div>
+
+                <div class="contact-info">
+                    <h2>Contact Information</h2>
+                    
+                    <div class="contact-item">
+                        <h3><i class="fas fa-envelope" style="margin-right: 0.75rem; color: var(--secondary-color);"></i>Email Support</h3>
+                        <p>support@lawgeeks.com</p>
+                        <p style="font-size: 0.95rem; margin-top: 0.5rem;">We respond within 24 hours</p>
+                    </div>
+
+                    <div class="contact-item">
+                        <h3><i class="fas fa-briefcase" style="margin-right: 0.75rem; color: var(--secondary-color);"></i>Business Inquiries</h3>
+                        <p>business@lawgeeks.com</p>
+                        <p style="font-size: 0.95rem; margin-top: 0.5rem;">For partnerships and enterprise</p>
+                    </div>
+
+                    <div class="contact-item">
+                        <h3><i class="fas fa-lock" style="margin-right: 0.75rem; color: var(--secondary-color);"></i>Security & Privacy</h3>
+                        <p>security@lawgeeks.com</p>
+                        <p style="font-size: 0.95rem; margin-top: 0.5rem;">Report security issues</p>
+                    </div>
+
+                    <div class="contact-item">
+                        <h3><i class="fas fa-globe" style="margin-right: 0.75rem; color: var(--secondary-color);"></i>Social Media</h3>
+                        <p>Follow us on Twitter, LinkedIn, and Instagram @LawGeeks</p>
+                    </div>
+
+                    <div class="contact-item">
+                        <h3><i class="fas fa-clock" style="margin-right: 0.75rem; color: var(--secondary-color);"></i>Response Time</h3>
+                        <p>Monday - Friday: 9 AM - 6 PM EST</p>
+                        <p>Weekend: Emergency support only</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <div class="footer-logo">LawGeeks</div>
+                <p class="footer-description">AI-powered legal document analysis for everyone.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Product</h4>
+                <ul class="footer-links">
+                    <li><a href="./features.html">Features</a></li>
+                    <li><a href="./home.html#resources">Resources</a></li>
+                    <li><a href="./dashboard.html">Dashboard</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Company</h4>
+                <ul class="footer-links">
+                    <li><a href="./about.html">About</a></li>
+                    <li><a href="./contact.html">Contact</a></li>
+                    <li><a href="#">Careers</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms</a></li>
+                    <li><a href="#">Security</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 LawGeeks. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Form submission handler
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Thank you for your message! We will respond within 24 hours.');
+            this.reset();
+        });
+
+        // Intersection Observer for scroll-triggered animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all elements that should animate on scroll
+        document.addEventListener('DOMContentLoaded', () => {
+            const animatedElements = document.querySelectorAll('.contact-form, .contact-info, .footer-column');
+            animatedElements.forEach(el => {
+                observer.observe(el);
+            });
+
+            // Set active navigation link
+            const currentPage = window.location.pathname.split('/').pop() || 'home.html';
+            document.querySelectorAll('.nav-center a').forEach(link => {
+                const href = link.getAttribute('href').split('/').pop().split('#')[0];
+                if (href === currentPage || (currentPage === '' && href === 'home.html')) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
