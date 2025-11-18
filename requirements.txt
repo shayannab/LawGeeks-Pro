@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+google-generativeai
+langchain
+langchain-google-genai
+langchain-community
+chromadb  # This will be our vector database
+langchain-text-splitters
+langchain-chroma
+lxml      # Needed by some document loaders

@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LawGeeks App - Analyze Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js`;</script>
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #E8FF8B;
+            --page-bg: #efebe7;
+            --accent-pink: #FFB3E6;
+            --accent-yellow: #FFF9B3;
+            --accent-green: #D4F1D4;
+            --white: #FFFFFF;
+            --text-dark: #1a1a1a;
+            --text-gray: #666666;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--page-bg);
+            color: var(--text-dark);
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--white);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+            border-radius: 28px;
+            margin: 1.5rem;
+            padding: 0.5rem 2rem;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-placeholder {
+            width: 56px;
+            height: 56px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .logo-text {
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .nav-center-links a:hover {
+            color: var(--text-gray);
+            transition: color 0.3s ease;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(232, 255, 139, 0.4);
+        }
+
+        /* Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Upload Buttons */
+        .upload-btn {
+            background: var(--white);
+            border: 2px solid rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            padding: 0.875rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            border-color: var(--secondary-color);
+        }
+
+                .upload-btn-icon {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .dropdown-item {
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none !important;
+        }
+
+        /* Tab Buttons */
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            color: var(--text-gray);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tab-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-dark);
+        }
+
+        .tab-btn-active {
+            background: var(--primary-color);
+            color: var(--secondary-color);
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            background: var(--primary-color);
+            color: var(--secondary-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-btn-secondary {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .action-btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(232, 255, 139, 0.3);
+        }
+
+        /* Action button icon hover effect */
+        .action-btn-secondary::before { content: '\f0d0'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) translateX(-20px); opacity: 0; transition: all 0.3s ease; }
+        .action-btn-secondary:hover::before { opacity: 1; transform: translate(-50%, -50%) translateX(0); }
+        .action-btn-secondary span { display: inline-block; transition: opacity 0.3s ease; }
+        .action-btn-secondary:hover span { opacity: 0; }
+
+        /* Home button nav hover effect */
+        .btn-home::after { content: '\f061'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) translateX(-20px); opacity: 0; transition: all 0.3s ease; font-size: 1rem; }
+        .btn-home:hover::after { opacity: 1; transform: translate(-50%, -50%) translateX(0); }
+        .btn-home { overflow: hidden; position: relative; }
+        .btn-home span { display: inline-block; transition: opacity 0.3s ease; }
+        .btn-home:hover span { opacity: 0; }
+
+        /* Vigilance Meter */
+        .vigilance-meter {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            margin: 2rem 0;
+        }
+
+        .meter-arc {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .meter-gradient {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: conic-gradient(
+                from 180deg,
+                var(--accent-green) 0deg,
+                var(--accent-yellow) 120deg,
+                var(--accent-pink) 240deg,
+                #ff6b6b 360deg
+            );
+            mask: radial-gradient(
+                circle,
+                transparent 0%,
+                transparent 70%,
+                black 70%,
+                black 100%
+            );
+            -webkit-mask: radial-gradient(
+                circle,
+                transparent 0%,
+                transparent 70%,
+                black 70%,
+                black 100%
+            );
+        }
+
+        .meter-pointer {
+            position: absolute;
+            width: 4px;
+            height: 80px;
+            background: var(--primary-color);
+            left: 50%;
+            bottom: 50%;
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(-90deg);
+            border-radius: 2px;
+            transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .meter-center {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: 4px solid var(--white);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .meter-score {
+            position: absolute;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .meter-label {
+            position: absolute;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .meter-label-low { left: 10%; bottom: 40%; }
+        .meter-label-high { right: 10%; bottom: 40%; }
+
+        /* Chat Messages */
+        .chat-message {
+            padding: 1rem 1.25rem;
+            border-radius: 16px;
+            margin-bottom: 0.75rem;
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            background: var(--primary-color);
+            color: var(--secondary-color);
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot-message {
+            background: var(--white);
+            color: var(--text-dark);
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        /* Loading Spinner */
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Stats Card */
+        .stat-badge {
+            background: var(--white);
+            border: 2px solid;
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-badge:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-badge-pink { border-color: var(--accent-pink); }
+        .stat-badge-yellow { border-color: var(--accent-yellow); }
+        .stat-badge-green { border-color: var(--accent-green); }
+
+        /* Textarea */
+        textarea {
+            background: var(--white);
+            border: 2px solid rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            padding: 1rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(232, 255, 139, 0.2);
+        }
+
+        /* Input */
+        input[type="text"] {
+            background: var(--white);
+            border: 2px solid rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(232, 255, 139, 0.2);
+        }
+
+        /* Select Dropdown */
+        select {
+            background: var(--white);
+            border: 2px solid rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:hover {
+            border-color: var(--secondary-color);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(232, 255, 139, 0.2);
+        }
+
+        /* File name display */
+        .file-name-display {
+            background: rgba(232, 255, 139, 0.2);
+            border: 1px solid rgba(232, 255, 139, 0.4);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            color: var(--text-dark);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Prose styling for content */
+        .prose {
+            color: var(--text-gray);
+        }
+        
+        .prose h3 {
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .prose p {
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        
+        .prose ul, .prose ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .prose li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="flex items-center justify-between w-full">
+            <a href="./test.html" class="logo-container">
+                <div class="logo-placeholder" style="background-image: url('./images/lawgeeksLogo.png'); background-size: contain; background-repeat: no-repeat; background-position: center;"></div>
+                <span class="logo-text">LawGeeks</span>
+            </a>
+            <div class="nav-center-links" style="display: flex; gap: 2.5rem; align-items: center;">
+                <a href="./features.html" style="text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.5px;">Features</a>
+                <a href="./test.html#resources" style="text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.5px;">Resources</a>
+                <a href="./about.html" style="text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.5px;">About</a>
+            </div>
+            <a href="./test.html" class="btn-home" style="padding: 0.875rem 2.25rem; font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.5px; background-color: var(--secondary-color); color: var(--primary-color); text-decoration: none; border-radius: 12px; transition: all 0.3s ease; display: inline-block;"><span>Home</span></a>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="px-6 pb-6 grid grid-cols-1 lg:grid-cols-3 gap-6" style="height: calc(100vh - 120px);">
+        <!-- LEFT SIDEBAR -->
+        <div class="glass-card p-6 overflow-hidden">
+            <h2 class="text-3xl font-bold mb-6" style="color: var(--text-dark);">Analyze Document</h2>
+            
+            <!-- Text Input -->
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-3 uppercase tracking-wide" style="color: var(--text-gray);">Write or Paste Text</label>
+                <textarea 
+                    id="text-input" 
+                    rows="6" 
+                    class="w-full rounded-lg border-2 p-4 transition-all resize-none focus:outline-none" 
+                    style="border-color: rgba(0, 0, 0, 0.08); background: var(--white);"
+                    placeholder="Paste your legal document text here..."
+                ></textarea>
+            </div>
+
+            <!-- Divider -->
+            <div class="relative flex items-center my-6">
+                <div class="flex-grow border-t" style="border-color: rgba(0, 0, 0, 0.1);"></div>
+                <span class="px-4 text-sm font-semibold" style="color: var(--text-gray);">OR</span>
+                <div class="flex-grow border-t" style="border-color: rgba(0, 0, 0, 0.1);"></div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="mb-6">
+                <label class="block text-sm font-semibold mb-3 uppercase tracking-wide" style="color: var(--text-gray);">Upload a File</label>
+                <div class="relative">
+                    <button id="upload-dropdown-btn" class="upload-btn w-full text-left flex items-center justify-between" style="padding: 0.875rem;">
+                        <div class="flex items-center gap-3">
+                            <div class="upload-btn-icon" style="margin-bottom: 0;"><i class="fas fa-cloud-arrow-up"></i></div>
+                            <div>
+                                <div class="font-semibold text-sm" style="color: var(--text-dark);">Choose File Type</div>
+                                <div class="text-xs" style="color: var(--text-gray);">Select file to upload</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down" style="color: var(--text-gray);"></i>
+                    </button>
+                    
+                    <div id="upload-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-2 bg-white border rounded-lg shadow-lg z-10" style="border-color: rgba(0, 0, 0, 0.08);">
+                        <button id="upload-pdf-btn" class="dropdown-item w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 border-b" style="border-color: rgba(0, 0, 0, 0.08);">
+                            <div class="upload-btn-icon" style="width: 36px; height: 36px; font-size: 1.1rem; margin-bottom: 0;"><i class="fas fa-file-pdf"></i></div>
+                            <div>
+                                <div class="font-semibold text-sm" style="color: var(--text-dark);">PDF Documents</div>
+                                <div class="text-xs" style="color: var(--text-gray);">.pdf files</div>
+                            </div>
+                        </button>
+                        
+                        <button id="upload-docx-btn" class="dropdown-item w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 border-b" style="border-color: rgba(0, 0, 0, 0.08);">
+                            <div class="upload-btn-icon" style="width: 36px; height: 36px; font-size: 1.1rem; margin-bottom: 0;"><i class="fas fa-file-word"></i></div>
+                            <div>
+                                <div class="font-semibold text-sm" style="color: var(--text-dark);">Word Documents</div>
+                                <div class="text-xs" style="color: var(--text-gray);">.docx files</div>
+                            </div>
+                        </button>
+                        
+                        <button id="upload-image-btn" class="dropdown-item w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50">
+                            <div class="upload-btn-icon" style="width: 36px; height: 36px; font-size: 1.1rem; margin-bottom: 0;"><i class="fas fa-image"></i></div>
+                            <div>
+                                <div class="font-semibold text-sm" style="color: var(--text-dark);">Images with OCR</div>
+                                <div class="text-xs" style="color: var(--text-gray);">.png, .jpg</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <input type="file" id="file-input" class="hidden">
+                <div id="file-name" class="mt-3"></div>
+            </div>
+
+            <!-- Analyze Button -->
+            <button id="analyze-button" class="action-btn-secondary w-full text-lg font-bold">
+                <span><i class="fas fa-magic"></i> Analyze Document</span>
+            </button>
+        </div>
+
+        <!-- RIGHT CONTENT AREA -->
+        <div class="lg:col-span-2 glass-card flex flex-col overflow-hidden">
+            <!-- Tab Navigation + Action Buttons -->
+            <div class="flex items-center justify-between border-b px-6 py-4" style="border-color: rgba(0, 0, 0, 0.08);">
+                <div class="flex gap-2">
+                    <button id="tab-dashboard" class="tab-btn tab-btn-active">Dashboard</button>
+                    <button id="tab-full-analysis" class="tab-btn">Full Analysis</button>
+                    <button id="tab-chat" class="tab-btn">Chat</button>
+                </div>
+                
+                <div id="action-buttons" class="hidden flex items-center gap-2 flex-wrap"></div>
+            </div>
+
+            <!-- Content Area -->
+            <div id="results-container" class="flex-grow overflow-y-auto p-6 custom-scrollbar">
+                <!-- Placeholder -->
+                <div id="analysis-placeholder" class="flex flex-col items-center justify-center h-full">
+                    <div class="text-6xl mb-4"><i class="fas fa-chart-bar" style="color: var(--primary-color);"></i></div>
+                    <p class="text-xl font-semibold" style="color: var(--text-gray);">Your analysis will appear here</p>
+                    <p class="text-sm mt-2" style="color: var(--text-gray);">Upload a document to get started</p>
+                </div>
+
+                <!-- Loading -->
+                <div id="analysis-loading" class="hidden flex flex-col items-center justify-center h-full">
+                    <div class="loader mb-4"></div>
+                    <p id="loading-status" class="text-lg font-semibold" style="color: var(--text-dark);">Analyzing document...</p>
+                </div>
+
+                <!-- Dashboard View -->
+                <div id="view-dashboard" class="hidden space-y-6"></div>
+
+                <!-- Full Analysis View -->
+                <div id="view-full-analysis" class="hidden prose prose-lg max-w-none"></div>
+
+                <!-- Chat View -->
+                <div id="view-chat" class="hidden h-full flex flex-col">
+                    <div id="chat-window" class="flex-grow overflow-y-auto mb-4 space-y-2 custom-scrollbar pr-2"></div>
+                    <div class="flex gap-2">
+                        <input 
+                            type="text" 
+                            id="chat-input" 
+                            placeholder="Ask a question about your document..." 
+                            class="flex-grow"
+                        >
+                        <button id="chat-send" class="action-btn px-6">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAnalysisResult = '';
+        let documentContentForAnalysis = '';
+
+        const elements = {
+            analyzeButton: document.getElementById('analyze-button'),
+            textInput: document.getElementById('text-input'),
+            fileInput: document.getElementById('file-input'),
+            fileName: document.getElementById('file-name'),
+            uploadDropdownBtn: document.getElementById('upload-dropdown-btn'),
+            uploadDropdownMenu: document.getElementById('upload-dropdown-menu'),
+            uploadPdfBtn: document.getElementById('upload-pdf-btn'),
+            uploadDocxBtn: document.getElementById('upload-docx-btn'),
+            uploadImageBtn: document.getElementById('upload-image-btn'),
+            analysisPlaceholder: document.getElementById('analysis-placeholder'),
+            analysisLoading: document.getElementById('analysis-loading'),
+            loadingStatus: document.getElementById('loading-status'),
+            views: {
+                dashboard: document.getElementById('view-dashboard'),
+                'full-analysis': document.getElementById('view-full-analysis'),
+                chat: document.getElementById('view-chat'),
+            },
+            actionButtons: document.getElementById('action-buttons'),
+            chatWindow: document.getElementById('chat-window'),
+            chatInput: document.getElementById('chat-input'),
+            chatSend: document.getElementById('chat-send'),
+        };
+
+        // Dropdown toggle handler
+        elements.uploadDropdownBtn.addEventListener('click', () => {
+            elements.uploadDropdownMenu.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#upload-dropdown-btn') && !e.target.closest('#upload-dropdown-menu')) {
+                elements.uploadDropdownMenu.classList.add('hidden');
+            }
+        });
+
+        // Event Listeners
+        elements.uploadPdfBtn.addEventListener('click', () => {
+            triggerFileInput('.pdf');
+            elements.uploadDropdownMenu.classList.add('hidden');
+        });
+        elements.uploadDocxBtn.addEventListener('click', () => {
+            triggerFileInput('.docx');
+            elements.uploadDropdownMenu.classList.add('hidden');
+        });
+        elements.uploadImageBtn.addEventListener('click', () => {
+            triggerFileInput('image/*');
+            elements.uploadDropdownMenu.classList.add('hidden');
+        });
+        elements.fileInput.addEventListener('change', handleFileUpload);
+        elements.analyzeButton.addEventListener('click', analyzeDocument);
+        elements.chatSend.addEventListener('click', handleSendMessage);
+        elements.chatInput.addEventListener('keyup', (e) => { if(e.key === 'Enter') handleSendMessage() });
+        
+        elements.textInput.addEventListener('input', () => {
+            if(elements.textInput.value) {
+                documentContentForAnalysis = '';
+                elements.fileName.innerHTML = '';
+                elements.fileInput.value = '';
+            }
+        });
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tabId = e.target.id.replace('tab-', '');
+                switchTab(tabId);
+            });
+        });
+
+        function triggerFileInput(acceptType) {
+            elements.fileInput.accept = acceptType;
+            elements.fileInput.click();
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            elements.textInput.value = '';
+            elements.fileName.innerHTML = `
+                <div class="file-name-display">
+                    <span>📎</span>
+                    <span class="font-semibold">${file.name}</span>
+                </div>
+            `;
+            
+            setLoading(true, 'Processing file...');
+            
+            try {
+                if (file.type === 'application/pdf') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                    let text = '';
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        setLoading(true, `Reading PDF page ${i} of ${pdf.numPages}`);
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        text += content.items.map(item => item.str).join(' ');
+                    }
+                    documentContentForAnalysis = text;
+                } else if (file.name.endsWith('.docx')) {
+                    setLoading(true, 'Reading Word document...');
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+                    documentContentForAnalysis = result.value;
+                } else if (file.type.startsWith('image/')) {
+                    setLoading(true, 'Recognizing text in image (OCR)...');
+                    const worker = await Tesseract.createWorker('eng');
+                    const { data: { text } } = await worker.recognize(file);
+                    documentContentForAnalysis = text;
+                    await worker.terminate();
+                } else {
+                    documentContentForAnalysis = await file.text();
+                }
+            } catch (error) {
+                alert(`Error processing file: ${error.message}`);
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function analyzeDocument() {
+            const content = elements.textInput.value.trim() || documentContentForAnalysis;
+            if (!content) {
+                alert("Please paste text or upload a file to analyze.");
+                return;
+            }
+            
+            documentContentForAnalysis = content;
+            setLoading(true, 'Analyzing with LawGeeks AI...');
+            
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ document_text: content })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || `Server error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                currentAnalysisResult = data.analysis_text;
+                displayAnalysisResults(currentAnalysisResult);
+
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function displayAnalysisResults(text, isTranslation = false) {
+            // Add action buttons
+            elements.actionButtons.innerHTML = `
+                <button id="listen-btn" class="action-btn text-sm">🔊 Listen</button>
+                <button id="download-report-btn" class="action-btn text-sm">📥 Download PDF</button>
+                <select id="translate-select" class="text-sm">
+                    <option value="">🌐 Translate to...</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="Odia">Odia</option>
+                    <option value="Bengali">Bengali</option>
+                    <option value="Telugu">Telugu</option>
+                    <option value="Marathi">Marathi</option>
+                    <option value="Tamil">Tamil</option>
+                    <option value="Urdu">Urdu</option>
+                    <option value="Gujarati">Gujarati</option>
+                    <option value="Kannada">Kannada</option>
+                    <option value="Malayalam">Malayalam</option>
+                    <option value="Punjabi">Punjabi</option>
+                </select>
+            `;
+            elements.actionButtons.classList.remove('hidden');
+
+            document.getElementById('listen-btn').addEventListener('click', speakAnalysis);
+            document.getElementById('download-report-btn').addEventListener('click', downloadReport);
+            document.getElementById('translate-select').addEventListener('change', (e) => translateAnalysis(e.target.value));
+
+            // Parse sections
+            const sections = {};
+            const parts = text.split('### ').slice(1);
+            parts.forEach(part => {
+                const [title, ...content] = part.split('\n');
+                sections[title.trim().replace(/:/g, '')] = content.join('\n').trim();
+            });
+
+            // Extract risk score
+            let riskScore = 50;
+            let riskJustification = "Could not be determined from the analysis.";
+            const scoreSectionText = sections['Vigilance Score (1-100) and Justification'];
+
+            if (scoreSectionText) {
+                const scoreMatch = scoreSectionText.match(/(\d+)/);
+                if (scoreMatch) {
+                    riskScore = parseInt(scoreMatch[0], 10);
+                }
+                riskJustification = scoreSectionText.replace(/(\d+)/, '').replace(/[*.]/g, '').trim();
+            }
+
+            // Build Dashboard View
+            const riskRotation = (riskScore / 100) * 180 - 90;
+            
+            elements.views.dashboard.innerHTML = `
+                <!-- Vigilance Meter -->
+                <div class="glass-card p-8">
+                    <h3 class="text-2xl font-bold mb-6 text-center" style="color: var(--text-dark);">Vigilance Score</h3>
+                    <div class="vigilance-meter">
+                        <div class="meter-arc">
+                            <div class="meter-gradient"></div>
+                            <div class="meter-pointer" style="transform: translateX(-50%) rotate(${riskRotation}deg);"></div>
+                            <div class="meter-center"></div>
+                            <div class="meter-score">${riskScore}</div>
+                            <div class="meter-label meter-label-low">Low Risk</div>
+                            <div class="meter-label meter-label-high">High Risk</div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-center italic mt-4" style="color: var(--text-gray);">${riskJustification}</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="stat-badge stat-badge-pink">
+                        <div class="text-3xl font-bold" style="color: var(--text-dark);">${Math.floor(documentContentForAnalysis.split(' ').length)}</div>
+                        <div class="text-sm font-semibold uppercase tracking-wide" style="color: var(--text-gray);">Risk Level</div>
+                    </div>
+                </div>
+
+                <!-- Summary Section -->
+                ${sections['Summary'] ? `
+                <div class="glass-card p-6">
+                    <h3 class="text-2xl font-bold mb-4" style="color: var(--text-dark);">Summary</h3>
+                    <div class="prose prose-lg" style="color: var(--text-gray);">${formatContent(sections['Summary'])}</div>
+                </div>
+                ` : ''}
+
+                <!-- Key Insights -->
+                ${sections['Key Insights'] ? `
+                <div class="glass-card p-6">
+                    <h3 class="text-2xl font-bold mb-4" style="color: var(--text-dark);">Key Insights</h3>
+                    <div class="prose prose-lg" style="color: var(--text-gray);">${formatContent(sections['Key Insights'])}</div>
+                </div>
+                ` : ''}
+
+                <!-- Important Mentions -->
+                ${sections['Important Mentions'] ? `
+                <div class="glass-card p-6">
+                    <h3 class="text-2xl font-bold mb-4" style="color: var(--text-dark);">Important Mentions</h3>
+                    <div class="prose prose-lg" style="color: var(--text-gray);">${formatContent(sections['Important Mentions'])}</div>
+                </div>
+                ` : ''}
+            `;
+
+            // Build Full Analysis View
+            let fullAnalysisHtml = '';
+            parts.forEach(part => {
+                const [title, ...content] = part.split('\n');
+                fullAnalysisHtml += `
+                    <div class="glass-card p-6 mb-6">
+                        <h3 class="text-2xl font-bold mb-4" style="color: var(--text-dark);">${title.trim().replace(' (1-100) and Justification', '')}</h3>
+                        <div style="color: var(--text-gray);">${formatContent(content.join('\n').trim())}</div>
+                    </div>
+                `;
+            });
+            elements.views['full-analysis'].innerHTML = fullAnalysisHtml;
+
+            if (isTranslation) {
+                switchTab('full-analysis');
+                return;
+            }
+
+            switchTab('dashboard');
+        }
+
+        function formatContent(text) {
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+            return lines.map(line => {
+                if (line.trim().startsWith('*')) {
+                    return `
+                        <div class="flex items-start my-3">
+                            <div class="flex-shrink-0 w-2 h-2 rounded-full mt-2 mr-3" style="background: var(--secondary-color);"></div>
+                            <span>${line.trim().substring(1).trim()}</span>
+                        </div>`;
+                }
+                return `<p class="my-3 leading-relaxed">${line}</p>`;
+            }).join('');
+        }
+
+        function switchTab(tab) {
+            elements.analysisPlaceholder.classList.add('hidden');
+            Object.values(elements.views).forEach(v => v.classList.add('hidden'));
+            elements.views[tab].classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-btn-active');
+            });
+            const activeBtn = document.getElementById(`tab-${tab}`);
+            if (activeBtn) activeBtn.classList.add('tab-btn-active');
+        }
+
+        function setLoading(isLoading, message = 'Analyzing...') {
+            elements.analysisLoading.classList.toggle('hidden', !isLoading);
+            elements.loadingStatus.textContent = message;
+            elements.analysisPlaceholder.classList.toggle('hidden', isLoading);
+            
+            if(isLoading) {
+                elements.actionButtons.classList.add('hidden');
+                Object.values(elements.views).forEach(v => v.classList.add('hidden'));
+            }
+        }
+
+        function downloadReport() {
+            if (!currentAnalysisResult) {
+                alert("Please analyze a document first to generate a report.");
+                return;
+            }
+
+            setLoading(true, 'Generating PDF Report...');
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({
+                    orientation: 'p',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                doc.setProperties({
+                    title: 'LawGeeks Analysis Report',
+                    subject: 'AI-Powered Legal Document Analysis',
+                    author: 'LawGeeks'
+                });
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(24);
+                doc.setTextColor(26, 26, 26);
+                doc.text("LawGeeks", 105, 20, null, null, "center");
+                
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text("AI-Powered Document Analysis Report", 105, 28, null, null, "center");
+                doc.setLineWidth(0.5);
+                doc.line(15, 35, 195, 35);
+
+                doc.setFont("times", "normal");
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+
+                const sections = currentAnalysisResult.split('### ').slice(1);
+                let yPosition = 45;
+
+                sections.forEach(section => {
+                    const [title, ...contentLines] = section.split('\n');
+                    const content = contentLines.join('\n').trim();
+
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(16);
+                    doc.setTextColor(26, 26, 26);
+                    
+                    if (yPosition > 260) {
+                        doc.addPage();
+                        yPosition = 20;
+                    }
+                    doc.text(title.trim().replace(' (1-100) and Justification', ''), 15, yPosition);
+                    yPosition += 8;
+
+                    doc.setFont("times", "normal");
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0);
+                    
+                    const textLines = doc.splitTextToSize(content.replace(/\*/g, '  •  '), 180);
+                    textLines.forEach(line => {
+                        if (yPosition > 280) {
+                            doc.addPage();
+                            yPosition = 20;
+                        }
+                        doc.text(line, 15, yPosition);
+                        yPosition += 7;
+                    });
+                    
+                    yPosition += 5;
+                });
+                
+                const pageCount = doc.internal.getNumberOfPages();
+                for(let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text(`Page ${i} of ${pageCount} | Generated by LawGeeks`, 105, 290, null, null, "center");
+                }
+
+                doc.save("LawGeeks-Analysis-Report.pdf");
+
+            } catch (error) {
+                console.error("Failed to generate PDF:", error);
+                alert("Sorry, there was an error generating the PDF report.");
+            } finally {
+                setLoading(false);
+                switchTab('dashboard');
+            }
+        }
+
+        async function translateAnalysis(language) {
+            if (!language || !currentAnalysisResult) return;
+            setLoading(true, `Translating to ${language}...`);
+            try {
+                const prompt = `Translate the following text into ${language}. Keep the original formatting, headings, and bullet points.\n\nText:\n---\n${currentAnalysisResult}`;
+                
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        document_text: "Translate this text.",
+                        question: prompt
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || `Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayAnalysisResults(data.answer, true);
+
+            } catch (error) {
+                alert(`Translation failed: ${error.message}`);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function appendMessageToChat(text, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${type}-message`;
+            messageDiv.textContent = text;
+            elements.chatWindow.appendChild(messageDiv);
+            elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
+        }
+
+        async function handleSendMessage() {
+            const userMessage = elements.chatInput.value.trim();
+            if (!userMessage) return;
+            if (!documentContentForAnalysis) {
+                alert("Please analyze a document before using the chat.");
+                return;
+            }
+
+            appendMessageToChat(userMessage, 'user');
+            elements.chatInput.value = '';
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        document_text: documentContentForAnalysis,
+                        question: userMessage
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || `Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                appendMessageToChat(data.answer, 'bot');
+
+            } catch (error) {
+                appendMessageToChat(`Sorry, I encountered an error: ${error.message}`, 'bot');
+            }
+        }
+
+        function speakAnalysis() {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                document.getElementById('listen-btn').innerHTML = '🔊 Listen';
+                return;
+            }
+
+            if (currentAnalysisResult) {
+                const cleanText = currentAnalysisResult.replace(/###/g, ' ');
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                const listenBtn = document.getElementById('listen-btn');
+
+                utterance.onstart = () => { listenBtn.innerHTML = '⏸️ Stop'; };
+                utterance.onend = () => { listenBtn.innerHTML = '🔊 Listen'; };
+                
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+    </script>
+</body>
+</html>

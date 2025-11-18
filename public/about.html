@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - LawGeeks</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #E8FF8B;
+            --page-bg: #efebe7;
+            --accent-pink: #FFB3E6;
+            --accent-yellow: #FFF9B3;
+            --accent-green: #D4F1D4;
+            --white: #FFFFFF;
+            --text-dark: #1a1a1a;
+            --text-gray: #666666;
+            --space-xl: 3rem;
+            --space-2xl: 4rem;
+            --space-3xl: 6rem;
+            --container-width: 1280px;
+            --container-padding: 2rem;
+            --card-radius: 20px;
+            --nav-radius: 28px;
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text-dark); background: var(--page-bg); line-height: 1.6; overflow-x: hidden; }
+        h1 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 700; line-height: 1.1; margin-bottom: 1.5rem; }
+        h2 { font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 600; margin-bottom: 1rem; }
+        h3 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); font-weight: 600; margin-bottom: 0.75rem; }
+        p { font-size: 1.125rem; line-height: 1.7; color: var(--text-gray); margin-bottom: 1rem; }
+
+        .container { max-width: var(--container-width); margin: 0 auto; padding: 0 var(--container-padding); }
+        
+        /* Navbar */
+        header { position: sticky; top: 1.5rem; z-index: 1000; padding: 0 var(--container-padding); margin-bottom: var(--space-2xl); }
+        .navbar { max-width: var(--container-width); margin: 0 auto; padding: 0.5rem 2rem; display: flex; justify-content: space-between; align-items: center; background: var(--white); border-radius: var(--nav-radius); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06); width: 100%; }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-placeholder { width: 56px; height: 56px; background-size: contain; background-repeat: no-repeat; background-position: center; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: 700; font-size: 1.25rem; }
+        .logo-text { font-size: 1.375rem; font-weight: 700; color: var(--primary-color); }
+        .nav-center { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
+        .nav-center a { text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 0.9375rem; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.3s ease; }
+        .nav-center a:hover { color: var(--text-gray); }
+        .nav-right { display: flex; align-items: center; }
+        .btn { padding: 1rem 2.5rem; font-size: 1.125rem; font-weight: 600; text-decoration: none; border-radius: 12px; transition: all 0.3s ease; border: none; cursor: pointer; position: relative; display: inline-block; }
+        .btn-secondary { background: var(--secondary-color); color: var(--primary-color); }
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(232, 255, 139, 0.4); }
+        .btn-nav::after { content: '\f061'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) translateX(-20px); opacity: 0; transition: all 0.3s ease; font-size: 1.25rem; }
+        .btn-nav:hover::after { opacity: 1; transform: translate(-50%, -50%) translateX(0); }
+        .btn-nav { overflow: hidden; }
+        .btn-nav span { display: inline-block; transition: opacity 0.3s ease; }
+        .btn-nav:hover span { opacity: 0; }
+
+        /* Hero */
+        .hero { padding: 0 var(--container-padding) var(--space-2xl); }
+        .hero-inner { max-width: var(--container-width); margin: 0 auto; background: var(--white); border-radius: var(--card-radius); padding: var(--space-3xl); text-align: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08); transition: all 0.3s ease; opacity: 0; transform: translateY(30px); }
+        .hero-inner.animate { animation: slideInUp 0.8s ease-out forwards; }
+        .hero-inner:hover { transform: translateY(-5px); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12); }
+        .hero h1 { opacity: 0; transform: translateX(-50px); }
+        .hero h1.animate { animation: slideInLeft 0.8s ease-out 0.2s forwards; }
+        .hero p { opacity: 0; transform: translateX(50px); }
+        .hero p.animate { animation: slideInRight 0.8s ease-out 0.3s forwards; }
+
+        /* Content */
+        .content-section { padding: var(--space-3xl) 0; }
+        .content-card { background: var(--white); padding: var(--space-3xl); border-radius: var(--card-radius); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08); margin-bottom: var(--space-2xl); opacity: 0; transform: translateY(30px); transition: all 0.3s ease; }
+        .content-card.animate { animation: slideInUp 0.8s ease-out forwards; }
+        .content-card:hover { transform: translateY(-5px); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12); }
+        .story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl); margin: var(--space-2xl) 0; }
+        .story-card { background: var(--white); padding: var(--space-xl); border-radius: var(--card-radius); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08); border-left: 4px solid; transition: all 0.3s ease; opacity: 0; transform: translateY(30px); }
+        .story-card.animate { animation: slideInUp 0.6s ease-out forwards; }
+        .story-card:nth-child(1).animate { animation-delay: 0.1s; }
+        .story-card:nth-child(2).animate { animation-delay: 0.2s; }
+        .story-card:nth-child(3).animate { animation-delay: 0.3s; }
+        .story-card:nth-child(4).animate { animation-delay: 0.4s; }
+        .story-card:hover { transform: translateY(-5px); box-shadow: 0 25px 70px rgba(0, 0, 0, 0.12); }
+        .story-card:nth-child(odd) { border-left-color: var(--accent-pink); }
+        .story-card:nth-child(even) { border-left-color: var(--accent-yellow); }
+
+        /* Footer */
+        footer { background: var(--primary-color); color: var(--white); padding: var(--space-3xl) var(--container-padding); position: relative; overflow: hidden; }
+        footer::before { content: 'LAWGEEKS'; position: absolute; left: 5%; bottom: 5%; font-size: clamp(8rem, 20vw, 20rem); font-weight: 800; color: rgba(255, 255, 255, 0.03); letter-spacing: -0.05em; pointer-events: none; }
+        .footer-content { max-width: var(--container-width); margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: var(--space-2xl); margin-bottom: var(--space-2xl); position: relative; z-index: 1; }
+        .footer-logo { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
+        .footer-description { opacity: 0.8; line-height: 1.7; margin-bottom: 1.5rem; }
+        .footer-column h4 { margin-bottom: 1rem; font-weight: 600; }
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 0.75rem; }
+        .footer-links a { color: var(--white); text-decoration: none; opacity: 0.7; transition: opacity 0.3s ease; }
+        .footer-links a:hover { opacity: 1; }
+        .footer-column { opacity: 0; transform: translateY(30px); }
+        .footer-column.animate { animation: slideInUp 0.8s ease-out forwards; }
+        .footer-column:nth-child(1).animate { animation-delay: 0.1s; }
+        .footer-column:nth-child(2).animate { animation-delay: 0.2s; }
+        .footer-column:nth-child(3).animate { animation-delay: 0.3s; }
+        .footer-column:nth-child(4).animate { animation-delay: 0.4s; }
+        .footer-bottom { max-width: var(--container-width); margin: 0 auto; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; opacity: 0.7; position: relative; z-index: 1; }
+
+        /* Animations */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        header { animation: slideInDown 0.6s ease-out; }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .story-grid { grid-template-columns: 1fr; }
+            .footer-content { grid-template-columns: 1fr; }
+            .nav-center { display: none; }
+        }
+    </style>
+    <script>
+        // Intersection Observer for scroll-triggered animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all elements that should animate on scroll
+        document.addEventListener('DOMContentLoaded', () => {
+            const animatedElements = document.querySelectorAll('.hero-inner, .hero h1, .hero p, .content-card, .story-card, .footer-column');
+            animatedElements.forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="./test.html" class="logo-container">
+                <div class="logo-placeholder" style="background-image: url('./images/lawgeeksLogo.png');"></div>
+                <span class="logo-text">LawGeeks</span>
+            </a>
+            <ul class="nav-center">
+                <li><a href="./features.html">Features</a></li>
+                <li><a href="./test.html#resources">Resources</a></li>
+                <li><a href="./about.html">About</a></li>
+            </ul>
+            <div class="nav-right">
+                <a href="./test.html" class="btn btn-secondary btn-nav"><span>Home</span></a>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-inner">
+            <h1>Making Legal Documents Accessible to Everyone</h1>
+            <p>We believe no one should sign something they don't understand. That's why we built LawGeeks.</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="container">
+            <div class="content-card">
+                <h2>Our Story</h2>
+                <p>LawGeeks was born from a simple frustration: legal documents are unnecessarily complicated. In 2023, our founders—a software engineer and a recovering lawyer—watched too many friends and family members sign contracts they didn't fully understand.</p>
+                <p>The problem wasn't intelligence. It was access. Hiring a lawyer to review every document costs hundreds or thousands of dollars. Reading it yourself means hours of googling legal terms you'll forget tomorrow.</p>
+                <p>We knew AI could solve this. Within months, we built the first version of LawGeeks: an AI that could read any legal document and explain it in plain English. Today, we've analyzed over 2 million documents for 50,000+ users worldwide.</p>
+            </div>
+
+            <div class="story-grid">
+                <div class="story-card">
+                    <h3>Our Mission</h3>
+                    <p>To democratize legal understanding. Every person deserves to know exactly what they're agreeing to before they sign.</p>
+                </div>
+                <div class="story-card">
+                    <h3>Our Vision</h3>
+                    <p>A world where legal language is no longer a barrier to fair agreements and informed decisions.</p>
+                </div>
+                <div class="story-card">
+                    <h3>Our Values</h3>
+                    <p>Transparency, accessibility, and accuracy. We build tools that empower people, not replace professionals.</p>
+                </div>
+                <div class="story-card">
+                    <h3>Our Promise</h3>
+                    <p>Your documents are yours. We never sell your data, train AI on your content without permission, or share your information.</p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>Why Trust LawGeeks?</h2>
+                <p><strong>Built by Legal + Tech Experts:</strong> Our team includes former lawyers, AI researchers, and engineers from top tech companies.</p>
+                <p><strong>99.2% Accuracy:</strong> Validated by independent legal experts across thousands of documents.</p>
+                <p><strong>SOC 2 Compliant:</strong> Bank-level security and encryption for all your documents.</p>
+                <p><strong>Used by 50,000+ People:</strong> From freelancers to Fortune 500 companies.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div>
+                <div class="footer-logo">LawGeeks</div>
+                <p class="footer-description">AI-powered legal document analysis for everyone.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Product</h4>
+                <ul class="footer-links">
+                    <li><a href="./features.html">Features</a></li>
+                    <li><a href="./dashboard.html">Dashboard</a></li>
+                    <li><a href="#">API</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Company</h4>
+                <ul class="footer-links">
+                    <li><a href="./about.html">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms</a></li>
+                    <li><a href="#">Security</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom"><p>© 2025 LawGeeks. All rights reserved.</p></div>
+    </footer>
+</body>
+</html>
