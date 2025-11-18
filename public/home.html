@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LawGeeks - AI-Powered Legal Document Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+        /* === RESET & BASE === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            /* Colors */
+            --primary-color: #1a1a1a;
+            --secondary-color: #E8FF8B;
+            --page-bg: #efebe7;
+            --accent-pink: #FFB3E6;
+            --accent-yellow: #FFF9B3;
+            --accent-green: #D4F1D4;
+            --accent-brown-dark: #8b6c52;
+            --accent-brown-light: #e9dcc8;
+            --white: #FFFFFF;
+            --text-dark: #1a1a1a;
+            --text-gray: #666666;
+            
+            /* Spacing System */
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2rem;
+            --space-xl: 3rem;
+            --space-2xl: 4rem;
+            --space-3xl: 6rem;
+            
+            /* Layout */
+            --container-width: 1280px;
+            --container-padding: 2rem;
+            --section-spacing: 8rem;
+            --card-radius: 20px;
+            --nav-radius: 28px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+            background-color: var(--page-bg);
+            overflow-x: hidden;
+        }
+
+        /* === TYPOGRAPHY === */
+        h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 600; line-height: 1.15; margin-bottom: var(--space-md); }
+        h2 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 600; line-height: 1.2; margin-bottom: var(--space-md); }
+        h3 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.25rem, 2.5vw, 1.75rem); font-weight: 600; margin-bottom: var(--space-sm); }
+        p { font-family: 'Inter', sans-serif; font-size: 1.125rem; line-height: 1.7; color: var(--text-gray); font-weight: 400; }
+
+        /* === LAYOUT UTILITIES === */
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 var(--container-padding);
+        }
+
+        .section {
+            padding: var(--section-spacing) 0;
+        }
+
+        .section-compact {
+            padding: calc(var(--section-spacing) * 0.6) 0;
+        }
+
+        /* === SECTION HEADERS === */
+        .section-header {
+            text-align: center;
+            margin-bottom: var(--space-3xl);
+        }
+
+        .section-eyebrow {
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(0, 0, 0, 0.5);
+            margin-bottom: var(--space-sm);
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* === BUTTONS === */
+        .btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(232, 255, 139, 0.4);
+        }
+
+        /* Navigation buttons */
+        .btn-nav::after { content: '\f061'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) translateX(-20px); opacity: 0; transition: all 0.3s ease; font-size: 1.25rem; }
+        .btn-nav:hover::after { opacity: 1; transform: translate(-50%, -50%) translateX(0); }
+        .btn-nav { overflow: hidden; }
+        .btn-nav span { display: inline-block; transition: opacity 0.3s ease; }
+        .btn-nav:hover span { opacity: 0; }
+
+        /* Action buttons */
+        .btn-action::before { content: '\f0d0'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) translateX(-20px); opacity: 0; transition: all 0.3s ease; font-size: 1.25rem; }
+        .btn-action:hover::before { opacity: 1; transform: translate(-50%, -50%) translateX(0); }
+        .btn-action { overflow: hidden; }
+        .btn-action span { display: inline-block; transition: opacity 0.3s ease; }
+        .btn-action:hover span { opacity: 0; }
+
+        /* === NAVBAR === */
+        header {
+            position: sticky;
+            top: 1.5rem;
+            z-index: 1000;
+            padding: 0 var(--container-padding);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .navbar {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--white);
+            border-radius: var(--nav-radius);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-placeholder {
+            width: 56px;
+            height: 56px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .logo-text {
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: -0.5px;
+        }
+
+        .nav-center {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-center a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 0.9375rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .nav-center a:hover {
+            color: var(--text-gray);
+        }
+
+        .nav-right {
+            display: flex !important;
+            align-items: center;
+            gap: 1rem;
+            visibility: visible !important;
+        }
+
+        .nav-right .btn {
+            display: inline-block !important;
+            padding: 0.875rem 2.25rem;
+            font-size: 0.9375rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-right .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(232, 255, 139, 0.4);
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        /* === HERO SECTION === */
+        .hero {
+            padding: 0 var(--container-padding) var(--space-2xl);
+        }
+
+        .hero-inner {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: var(--card-radius);
+            padding: var(--space-3xl);
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: var(--space-3xl);
+            align-items: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+        }
+
+        .hero-content h1 {
+            color: var(--text-dark);
+        }
+
+        .hero-content p {
+            margin-bottom: var(--space-lg);
+        }
+
+        .social-proof {
+            margin-top: var(--space-2xl);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .proof-avatars {
+            flex-shrink: 0;
+        }
+
+        .avatar-stack {
+            display: flex;
+            align-items: center;
+            gap: -8px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 3px solid var(--white);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-left: -8px;
+        }
+
+        .avatar:first-child {
+            margin-left: 0;
+        }
+
+        .avatar-count {
+            background: var(--primary-color) !important;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-left: -8px;
+        }
+
+        .proof-text {
+            font-size: 1rem;
+            color: var(--text-gray);
+            font-weight: 400;
+            margin: 0;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 400px;
+            border-radius: 16px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* === BENTO SECTION === */
+        .bento-section {
+            padding: var(--space-2xl) var(--container-padding);
+        }
+
+        .bento-grid {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: var(--space-lg);
+        }
+
+        .bento-left {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        .bento-card {
+            background: var(--white);
+            padding: var(--space-3xl);
+            border-radius: var(--card-radius);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+        }
+
+        .bento-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--primary-color);
+            margin-bottom: var(--space-md);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .bento-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: var(--space-xl);
+            border-radius: var(--card-radius);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-gray);
+            margin-bottom: var(--space-sm);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1;
+        }
+
+        .stat-desc {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            color: var(--text-gray);
+            margin-top: var(--space-xs);
+        }
+
+        .bento-feature {
+            background: linear-gradient(135deg, var(--accent-brown-dark) 0%, var(--accent-brown-light) 100%);
+            padding: var(--space-3xl);
+            border-radius: var(--card-radius);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bento-feature::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .bento-feature > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .bento-buttons {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+            margin-top: var(--space-lg);
+        }
+
+        /* === CONTENT FRAME (creme panel for insights + services) === */
+        .content-frame {
+            /* outer shell provides side padding to match other sections (like CTA) */
+            padding: 0 var(--container-padding) var(--section-spacing);
+            margin: 0;
+            background: transparent;
+        }
+
+        .content-frame .content-inner {
+            max-width: calc(var(--container-width) + 4rem);
+            margin: 0 auto;
+            padding: var(--space-3xl);
+            background: #f7f5f2; /* creme panel */
+            border-radius: var(--card-radius);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.04);
+        }
+
+
+        /* === INSIGHTS SECTION (compact three-up) === */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-lg);
+            /* add space above and below the grid so header breathes */
+            margin: var(--space-xl) auto var(--space-3xl);
+            max-width: var(--container-width);
+        }
+
+        .insight-card {
+            border-radius: calc(var(--card-radius) - 4px);
+            overflow: hidden;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.06);
+            transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            min-height: 340px;
+        }
+
+        .insight-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .insight-card:nth-child(1) { background: var(--accent-pink); }
+        .insight-card:nth-child(2) { background: var(--accent-yellow); }
+        .insight-card:nth-child(3) { background: var(--accent-green); }
+
+        .insight-image {
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+        }
+
+        .insight-image i {
+            color: var(--primary-color);
+            opacity: 0.9;
+        }
+
+        .insight-content {
+            padding: var(--space-md);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .insight-tag {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: var(--white);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--space-md);
+            width: fit-content;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .insight-card h3 {
+            color: var(--primary-color);
+            margin-bottom: var(--space-sm);
+        }
+
+        .insight-card p {
+            color: var(--text-gray);
+            margin-top: auto;
+        }
+
+        /* === SERVICES SECTION (compact three-up) === */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-lg);
+            /* push the services cards further down from the header */
+            margin: var(--space-xl) auto 0;
+            max-width: var(--container-width);
+        }
+
+        .service-card {
+            background: var(--white);
+            padding: var(--space-lg);
+            border-radius: calc(var(--card-radius) - 4px);
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.06);
+            border-left: 4px solid;
+            transition: all 0.28s ease;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .service-card:nth-child(1) { border-left-color: var(--accent-pink); }
+        .service-card:nth-child(2) { border-left-color: var(--accent-yellow); }
+        .service-card:nth-child(3) { border-left-color: var(--accent-green); }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12);
+        }
+
+        .service-card h3 {
+            color: var(--text-dark);
+        }
+
+        .service-card p {
+            margin-bottom: var(--space-lg);
+            flex: 1;
+        }
+
+        .service-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            transition: gap 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .service-link:hover {
+            gap: 0.5rem;
+        }
+
+        .service-link::after {
+            content: '→';
+            margin-left: 0.5rem;
+        }
+
+        /* (removed unused .cards-panel rules - clean up) */
+
+        /* increase separation below the content frame so the next section breathes more */
+        .content-frame { margin-bottom: calc(var(--section-spacing) + 2rem); }
+
+        /* === TESTIMONIAL === */
+        .testimonial {
+            /* match CTA banner side padding and vertical spacing */
+            padding: 0 var(--container-padding) var(--section-spacing);
+            margin: 0;
+            background: transparent; /* testimonial has inner dark block, keep outer transparent */
+        }
+
+        .testimonial .testimonial-inner {
+            max-width: calc(var(--container-width) + 4rem);
+            margin: 0 auto;
+            padding: var(--space-3xl);
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            color: var(--white);
+            border-radius: var(--card-radius);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .testimonial-quote {
+            font-size: 1.75rem;
+            font-weight: 500;
+            line-height: 1.6;
+            margin-bottom: var(--space-lg);
+            position: relative;
+        }
+
+        .testimonial-quote::before {
+            content: '"';
+            font-size: 4rem;
+            position: absolute;
+            top: -1.5rem;
+            left: -2rem;
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        .testimonial-author {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-top: var(--space-md);
+        }
+
+        .testimonial-role {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        /* === CTA BANNER === */
+        .cta-banner {
+            padding: 0 var(--container-padding) var(--section-spacing);
+        }
+
+        .cta-inner {
+            max-width: calc(var(--container-width) + 4rem);
+            margin: 0 auto;
+            background: var(--secondary-color);
+            border-radius: var(--card-radius);
+            padding: var(--space-3xl);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3xl);
+            align-items: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.08);
+        }
+
+        .cta-content {
+            padding-right: var(--space-xl);
+        }
+
+        .cta-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(0, 0, 0, 0.6);
+            margin-bottom: var(--space-sm);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .cta-inner h2 {
+            color: var(--primary-color);
+            margin-bottom: var(--space-md);
+        }
+
+        .cta-inner p {
+            color: rgba(0, 0, 0, 0.7);
+            margin-bottom: var(--space-lg);
+        }
+
+        .cta-image {
+            width: 100%;
+            height: 420px;
+            border-radius: 16px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        /* === FOOTER === */
+        footer {
+            background: var(--primary-color);
+            color: var(--white);
+            padding: var(--space-3xl) var(--container-padding);
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: 'LAWGEEKS';
+            position: absolute;
+            left: 5%;
+            bottom: 5%;
+            font-size: clamp(8rem, 20vw, 20rem);
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.03);
+            letter-spacing: -0.05em;
+            pointer-events: none;
+        }
+
+        .footer-content {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: var(--space-3xl);
+            margin-bottom: var(--space-3xl);
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-brand {
+            max-width: 360px;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--space-md);
+            letter-spacing: -0.5px;
+        }
+
+        .footer-description {
+            opacity: 0.8;
+            line-height: 1.7;
+            margin-bottom: var(--space-lg);
+        }
+
+        .social-links {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .social-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon i {
+            font-size: 1.25rem;
+        }
+
+        .social-icon:hover {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .footer-column h4 {
+            margin-bottom: var(--space-md);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: var(--space-sm);
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        .footer-bottom {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding-top: var(--space-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-bottom-links {
+            display: flex;
+            gap: var(--space-lg);
+            list-style: none;
+        }
+
+        .footer-bottom-links a {
+            color: var(--white);
+            text-decoration: none;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-bottom-links a:hover {
+            opacity: 1;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 1024px) {
+            :root {
+                --section-spacing: 5rem;
+                --container-padding: 1.5rem;
+            }
+
+            .hero-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --section-spacing: 3rem;
+                --container-padding: 1rem;
+            }
+
+            header {
+                top: 1rem;
+            }
+
+            .navbar {
+                padding: 0.75rem 1.25rem;
+            }
+
+            .nav-center {
+                position: fixed;
+                top: 90px;
+                left: -100%;
+                flex-direction: column;
+                background: var(--white);
+                width: 100%;
+                padding: var(--space-lg);
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+                transition: left 0.3s ease;
+                align-items: flex-start;
+                gap: var(--space-md);
+            }
+
+            .nav-center.active {
+                left: 0;
+            }
+
+            .nav-right {
+                display: flex !important;
+            }
+
+            .nav-center.active ~ .nav-right {
+                display: flex;
+                position: fixed;
+                top: calc(90px + 200px);
+                left: 0;
+                width: 100%;
+                padding: 0 var(--space-lg) var(--space-lg);
+                background: var(--white);
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .hero-inner {
+                padding: var(--space-xl);
+            }
+
+            .hero-image {
+                display: none;
+            }
+
+            .insights-grid,
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .testimonial-quote::before {
+                display: none;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: var(--space-md);
+                text-align: center;
+            }
+
+            .footer-bottom-links {
+                flex-direction: column;
+                gap: var(--space-sm);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <header>
+        <nav class="navbar">
+            <a href="#" class="logo-container">
+                <div class="logo-placeholder" style="background-image: url('./images/lawgeeksLogo.png');"></div>
+                <span class="logo-text">LawGeeks</span>
+            </a>
+            <button class="mobile-menu-toggle" aria-label="Toggle menu">☰</button>
+            <ul class="nav-center">
+                <li><a href="./features.html">Features</a></li>
+                <li><a href="./about.html">About</a></li>
+                <li><a href="#resources">Resources</a></li>
+            </ul>
+            <div class="nav-right">
+                <a href="./dashboard.html" class="btn btn-secondary btn-nav"><span>Dashboard</span></a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" id="home">
+        <div class="hero-inner">
+            <div class="hero-content">
+                <h1>Your AI Legal Assistant for Instant Document Clarity</h1>
+                <p>Stop drowning in legal jargon. LawGeeks transforms complex contracts, agreements, and legal documents into simple, understandable insights—in seconds, not hours.</p>
+                <a href="./dashboard.html" class="btn btn-secondary btn-nav"><span>Analyze Your First Document Free</span></a>
+                <div class="social-proof">
+                    <div class="proof-avatars">
+                        <div class="avatar-stack">
+                            <div class="avatar" style="background: linear-gradient(135deg, #FFB3E6, #FFF9B3);"></div>
+                            <div class="avatar" style="background: linear-gradient(135deg, #D4F1D4, #FFB3E6);"></div>
+                            <div class="avatar" style="background: linear-gradient(135deg, #FFF9B3, #D4F1D4);"></div>
+                            <div class="avatar" style="background: linear-gradient(135deg, #FFB3E6, #D4F1D4);"></div>
+                            <div class="avatar avatar-count">100+</div>
+                        </div>
+                    </div>
+                    <p class="proof-text">100+ legal professionals already trust LawGeeks</p>
+                </div>
+            </div>
+            <div class="hero-image" style="background-image: url('https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1600&auto=format&fit=crop');"></div>
+        </div>
+    </section>
+
+    <!-- BENTO GRID -->
+    <section class="bento-section" id="features">
+        <div class="bento-grid">
+            <div class="bento-left">
+                <div class="bento-card">
+                    <div class="bento-label">LAWGEEKS AI</div>
+                    <h2>Built for everyone who needs to understand legal documents—without hiring a lawyer</h2>
+                    <p>Whether you're a freelancer reviewing contracts, a small business owner negotiating terms, or just someone trying to understand a lease agreement, LawGeeks gives you instant legal clarity powered by advanced AI.</p>
+                </div>
+                <div class="bento-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Time Saved Per Document</div>
+                        <div class="stat-number">95%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Documents Analyzed</div>
+                        <div class="stat-number">2M+</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">AI Accuracy Rate</div>
+                        <div class="stat-number">99.2%</div>
+                        <div class="stat-desc">Validated by Legal Experts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Active Users</div>
+                        <div class="stat-number">50k+</div>
+                        <div class="stat-desc">Across 120+ Countries</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bento-feature">
+                <div>
+                    <h2>From confusion to confidence in 60 seconds</h2>
+                    <p>Upload any legal document and get an instant breakdown: plain-language summaries, risk assessments, hidden clauses, and smart recommendations—all powered by cutting-edge AI trained on millions of legal documents.</p>
+                    <div class="bento-buttons">
+                        <a href="./dashboard.html" class="btn btn-secondary btn-nav"><span>Start Free Analysis</span></a>
+                        <a href="#case-studies" class="btn btn-primary">See Real Examples</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTENT FRAME: INSIGHTS + SERVICES -->
+    <div class="content-frame">
+        <div class="content-inner">
+            <!-- INSIGHTS -->
+            <section class="insights-section" id="resources">
+                <div class="section-header">
+                    <div class="section-eyebrow">Knowledge Center</div>
+                    <h2>Learn, understand, protect yourself</h2>
+                </div>
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <div class="insight-image"><i class="fas fa-file-alt"></i></div>
+                        <div class="insight-content">
+                            <span class="insight-tag">Guide</span>
+                            <h3>5 Hidden Contract Clauses That Could Cost You Thousands</h3>
+                            <p>Learn to spot predatory terms like auto-renewal traps, liability waivers, and non-compete clauses before you sign.</p>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-image"><i class="fas fa-scale-balanced"></i></div>
+                        <div class="insight-content">
+                            <span class="insight-tag">Case Study</span>
+                            <h3>How Sarah Saved $12,000 on Her Freelance Contract</h3>
+                            <p>A real story of how LawGeeks helped a graphic designer identify unfair payment terms and renegotiate successfully.</p>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-image"><i class="fas fa-magnifying-glass"></i></div>
+                        <div class="insight-content">
+                            <span class="insight-tag">Tutorial</span>
+                            <h3>Your First Legal Document: A Step-by-Step Walkthrough</h3>
+                            <p>From upload to insights in under 2 minutes. See exactly how LawGeeks transforms complex legalese into plain English.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SERVICES -->
+            <section class="services-section">
+                <div class="section-header">
+                    <div class="section-eyebrow">Platform Features</div>
+                    <h2>Everything you need to understand any legal document</h2>
+                    <p>No legal degree required. No confusing jargon. Just clear answers.</p>
+                </div>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <h3>Instant AI Analysis</h3>
+                        <p>Upload PDFs, Word docs, or even photos of paper contracts. Our AI reads, analyzes, and breaks down every clause in under 60 seconds—highlighting what matters most.</p>
+                        <a href="./dashboard.html" class="service-link">Try It Now</a>
+                    </div>
+                    <div class="service-card">
+                        <h3>Smart Risk Scoring</h3>
+                        <p>See your document's risk level at a glance. We flag problematic clauses, unfair terms, and potential legal pitfalls with color-coded alerts and plain-language explanations.</p>
+                        <a href="#pricing" class="service-link">See Pricing</a>
+                    </div>
+                    <div class="service-card">
+                        <h3>Ask Anything (Chat AI)</h3>
+                        <p>Confused about a specific clause? Chat with our AI to ask follow-up questions, get examples, or understand implications—like having a lawyer on speed dial.</p>
+                        <a href="#features" class="service-link">Explore Features</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- TESTIMONIAL -->
+    <section class="testimonial">
+        <div class="testimonial-inner">
+            <p class="testimonial-quote">LawGeeks transformed how our team reviews contracts. What took hours now takes minutes, and everyone understands the documents completely. It's truly revolutionary for our business.</p>
+            <div class="testimonial-author">Jennifer Martinez</div>
+            <div class="testimonial-role">General Counsel, TechVentures Inc.</div>
+        </div>
+    </section>
+
+    <!-- CTA BANNER -->
+    <section class="cta-banner" id="pricing">
+        <div class="cta-inner">
+            <div class="cta-content">
+                <div class="cta-label">START TODAY</div>
+                <h2>Don't sign anything you don't understand</h2>
+                <p>Join 50,000+ people who analyze legal documents with confidence. Get your first analysis free—no credit card required.</p>
+                <a href="./dashboard.html" class="btn btn-primary btn-nav"><span>Analyze Document Free</span></a>
+            </div>
+            <div class="cta-image" style="background-image: url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1600&auto=format&fit=crop');"></div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer id="about">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="footer-logo">LawGeeks</div>
+                <p class="footer-description">Making legal documents understandable for everyone. AI-powered analysis that turns complex contracts into clear, actionable insights—so you can make confident decisions without expensive lawyers.</p>
+                <div class="social-links">
+                    <a href="#" class="social-icon" aria-label="Instagram">
+                        <span><i class="fab fa-instagram"></i></span>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Twitter">
+                        <span><i class="fab fa-x-twitter"></i></span>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="LinkedIn">
+                        <span><i class="fab fa-linkedin-in"></i></span>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="YouTube">
+                        <span><i class="fab fa-youtube"></i></span>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Product</h4>
+                <ul class="footer-links">
+                    <li><a href="./features.html">Features</a></li>
+                    <li><a href="./dashboard.html">Dashboard</a></li>
+                    <li><a href="#security">Security</a></li>
+                    <li><a href="#api">API Docs</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Company</h4>
+                <ul class="footer-links">
+                    <li><a href="./about.html">About</a></li>
+                    <li><a href="#support">Support</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 LawGeeks. All rights reserved.</p>
+            <ul class="footer-bottom-links">
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+                <li><a href="#">Cookie Policy</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // Mobile menu toggle
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const navCenter = document.querySelector('.nav-center');
+        
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', () => {
+                navCenter.classList.toggle('active');
+            });
+            
+            // Close menu when clicking on a link
+            document.querySelectorAll('.nav-center a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navCenter.classList.remove('active');
+                });
+            });
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Initialize elements with hidden state before observer
+        const initializeElements = () => {
+            // Sections
+            document.querySelectorAll('.hero, .bento-section, .content-frame, .testimonial, .cta-banner').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(40px)';
+                el.style.transition = 'none'; // No transition initially
+            });
+
+            // Cards
+            document.querySelectorAll('.insight-card, .service-card, .stat-card, .bento-card').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(40px)';
+                el.style.transition = 'none'; // No transition initially
+            });
+
+            // Buttons and links
+            document.querySelectorAll('.btn, .service-link, .footer-links a, .social-icon').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'none'; // No transition initially
+            });
+
+            // Social proof avatars
+            document.querySelectorAll('.avatar').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'none'; // No transition initially
+            });
+        };
+
+        // Initialize before anything renders
+        initializeElements();
+
+        // Smooth scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -30px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    // Get delay from data attribute
+                    const delay = parseInt(entry.target.dataset.animDelay) || 0;
+                    
+                    // Set transition and animate
+                    setTimeout(() => {
+                        entry.target.style.transition = 'opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, delay);
+                    
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observe major sections
+        const sectionConfigs = [
+            { selector: '.hero', delay: 0 },
+            { selector: '.bento-section', delay: 50 },
+            { selector: '.content-frame', delay: 50 },
+            { selector: '.testimonial', delay: 50 },
+            { selector: '.cta-banner', delay: 50 }
+        ];
+
+        sectionConfigs.forEach(config => {
+            const el = document.querySelector(config.selector);
+            if (el) {
+                el.dataset.animDelay = config.delay;
+                observer.observe(el);
+            }
+        });
+
+        // Observe cards with staggered delays
+        const animateCardGroup = (selector) => {
+            const cards = document.querySelectorAll(selector);
+            cards.forEach((card, index) => {
+                card.dataset.animDelay = index * 80; // 80ms stagger between cards
+                observer.observe(card);
+            });
+        };
+
+        animateCardGroup('.bento-card');
+        animateCardGroup('.stat-card');
+        animateCardGroup('.insight-card');
+        animateCardGroup('.service-card');
+
+        // Animate buttons within sections
+        const animateButtonsInSection = (parentSelector, startDelay = 0) => {
+            const parent = document.querySelector(parentSelector);
+            if (parent) {
+                const buttons = parent.querySelectorAll('.btn');
+                buttons.forEach((btn, index) => {
+                    btn.dataset.animDelay = startDelay + (index * 60); // 60ms stagger for buttons
+                    observer.observe(btn);
+                });
+            }
+        };
+
+        // Animate service links
+        const animateServiceLinks = () => {
+            const links = document.querySelectorAll('.service-link');
+            links.forEach((link, index) => {
+                link.dataset.animDelay = index * 60;
+                observer.observe(link);
+            });
+        };
+
+        // Animate footer links and socials
+        const animateFooterElements = () => {
+            const footerLinks = document.querySelectorAll('.footer-links a');
+            footerLinks.forEach((link, index) => {
+                link.dataset.animDelay = index * 40; // Faster stagger for footer links
+                observer.observe(link);
+            });
+
+            const socialIcons = document.querySelectorAll('.social-icon');
+            socialIcons.forEach((icon, index) => {
+                icon.dataset.animDelay = index * 60;
+                observer.observe(icon);
+            });
+        };
+
+        animateButtonsInSection('.hero');
+        animateButtonsInSection('.bento-feature', 100);
+        animateButtonsInSection('.cta-inner');
+        animateServiceLinks();
+        animateFooterElements();
+
+        // Animate social proof avatars
+        const avatars = document.querySelectorAll('.avatar');
+        avatars.forEach((avatar, index) => {
+            avatar.dataset.animDelay = 200 + (index * 80); // Start after hero button, stagger 80ms
+            observer.observe(avatar);
+        });
+    </script>
+</body>
+</html>
