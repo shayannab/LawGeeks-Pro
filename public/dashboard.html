@@ -33,9 +33,9 @@
     </nav>
 
     <!-- MAIN CONTENT -->
-    <div class="px-6 pb-6 grid grid-cols-1 lg:grid-cols-3 gap-6" style="height: calc(100vh - 120px);">
+    <div class="px-6 pb-6 grid grid-cols-1 lg:grid-cols-3 gap-6" style="min-height: calc(100vh - 120px); align-content: start;">
         <!-- LEFT SIDEBAR -->
-        <div class="glass-card p-6 overflow-hidden">
+        <div class="glass-card p-6" style="display: flex; flex-direction: column; max-height: calc(100vh - 140px); overflow-y: auto;">
             <h2 class="text-3xl font-bold mb-6" style="color: var(--text-dark);">Analyze Document</h2>
             
             <!-- Text Input -->
@@ -389,8 +389,12 @@
                 <!-- Stats Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="stat-badge stat-badge-pink">
-                        <div class="text-3xl font-bold" style="color: var(--text-dark);">${Math.floor(documentContentForAnalysis.split(' ').length)}</div>
-                        <div class="text-sm font-semibold uppercase tracking-wide" style="color: var(--text-gray);">Risk Level</div>
+                        <div style="color: var(--text-dark); font-weight: 600; margin-bottom: 0.5rem;">Risk Meter</div>
+                        <div style="width: 100%; height: 24px; background: rgba(0, 0, 0, 0.05); border-radius: 12px; overflow: hidden; margin-bottom: 0.5rem;">
+                            <div style="height: 100%; background: linear-gradient(90deg, #4CAF50, #FFC107, #FF6B6B); width: ${Math.min(100, (riskScore || 50))}%; transition: width 0.5s ease;"></div>
+                        </div>
+                        <div class="text-2xl font-bold" style="color: var(--text-dark);">${Math.min(100, (riskScore || 50))}</div>
+                        <div class="text-sm font-semibold uppercase tracking-wide" style="color: var(--text-gray);">out of 100</div>
                     </div>
                 </div>
 
